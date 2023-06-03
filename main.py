@@ -35,12 +35,17 @@ def Go_click(event):
         canvas.coords(stop_Button, 78, 290)
 def speedFocusOut(event):
     global breeding_interval
-    speed_entry.delete(0, tk.END)
-    speed_entry.insert(0, int(breeding_interval / 1000))
+    global SpeedChanged
+    global speed_value
+    if SpeedChanged == False:
+        speed_entry.delete(0, tk.END)
+        speed_entry.insert(0, int(1000/breeding_interval))
+        print(breeding_interval)
+    SpeedChanged = False
 def timerFocusOut(event):
     global timer
     timer_entry.delete(0, tk.END)
-    timer_entry.insert(0, timer)
+    timer_entry.insert(0, int(timer))
 def resetPressed_click(event):
     canvas.itemconfig(resetButton, image=reset_image)
 def reset_click(event):
@@ -64,15 +69,25 @@ def handle_key_release(event):
 
 def speed_click(event):
     global breeding_interval
-    breedLocal = breeding_interval
+    global last_speed
+    global SpeedChanged
+    global speed_value
+    last_speed = breeding_interval
     try:
-        breeding_interval = 1000/float(speed_entry.get())
+        speed_value = float(speed_entry.get())
+        breeding_interval = 1000/speed_value
+        last_speed = breeding_interval
+        speed_entry.delete(0, tk.END)
+        speed_entry.insert(0, int(speed_value))
+        SpeedChanged = True
     except ZeroDivisionError:
         speed_entry.delete(0, tk.END)
-        speed_entry.insert(0, int(breedLocal/1000))
+        speed_entry.insert(0, int(1000/last_speed))
+        breeding_interval = last_speed
     except ValueError:
         speed_entry.delete(0, tk.END)
-        speed_entry.insert(0, int(breedLocal/1000))
+        speed_entry.insert(0, int(1000/last_speed))
+        breeding_interval = last_speed
 def time_click(event):
     global timer
     timerLocal = int(timer)
@@ -202,6 +217,9 @@ speed_entry.insert(0, 1)
 speed_window = canvas.create_window(17, 108+20, anchor="nw", window=speed_entry)
 speed_entry.bind('<Return>', speed_click)
 speed_entry.bind("<FocusOut>", speedFocusOut)
+last_speed = breeding_interval
+SpeedChanged = False
+speed_value = 1
 
 # Reset
 resetButton = canvas.create_image(14, 334, image=reset_image, anchor=tk.NW)
